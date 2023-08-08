@@ -1,3 +1,4 @@
+import argparse
 from os.path import join, abspath, exists
 from os import makedirs
 import time
@@ -17,9 +18,20 @@ def obs_list_to_state_vector(observation):
 
 
 if __name__ == '__main__':
-    scenario = 'simple_spread' # choose between {'simple_adversary', 'simple_spread'}
-    alg = "sqddpg"  # choose between {'maddpg', 'sqddpg'}
-    output_dir = abspath(join("..", "scores"))
+    parser = argparse.ArgumentParser(description='main training process')
+    parser.add_argument('-a', '--algorithm',
+                        help='which algorithm to use',
+                        choices=['maddpg', 'sqddpg'], type=str,
+                        default='sqddpg')
+    parser.add_argument('-s', '--scenario',
+                        help='which scenario to use',
+                        choices=['simple_adversary', 'simple_spread'], type=str,
+                        default='simple_adversary')
+    args = parser.parse_args()
+
+    scenario = args.scenario
+    alg = args.algorithm
+    output_dir = abspath("scores")
     if not exists(output_dir):
         makedirs(output_dir)
     max_cycles = 25
@@ -117,9 +129,10 @@ if __name__ == '__main__':
                 # maddpg_agents.save_checkpoint()
                 best_score = avg_score
         if i % PRINT_INTERVAL == 0 and i > 0:
+            # print(alg, scenario, output_dir)
             print(datetime.now(), 'episode', i, 'average score {:.1f}'.format(avg_score), 'best score {:.1f}'.format(best_score))
             df = pd.DataFrame(score_history)
             df.to_csv(abspath(
                 join(output_dir,
-                     f"{scenario}_{alg}_{num_agents}_agents.csv")))
+                     f"{scenario}_{alg}_{num_agents}_agents_.csv")))
 
